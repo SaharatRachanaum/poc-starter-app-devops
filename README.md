@@ -190,7 +190,7 @@ curl -X POST http://localhost:3001/api/registrations \
 
 ### 8.1 Structure & Containerization
 - **Backend Architecture:** จัดทำ `Dockerfile` (Node.js 20 Alpine) พร้อมตั้งค่า `HEALTHCHECK` ผ่าน `/api/health`
-- **Frontend Architecture:** จัดทำ `Dockerfile` (Nginx Alpine) สำหรับเสิร์ฟไฟล์ Static
+- **Frontend Architecture:** จัดทำ `Dockerfile` (Nginx Alpine) สำหรับไฟล์ Static
 - **Reverse Proxy:** ใช้ Nginx ทำหน้าที่เป็น Gateway (Port 80) เพื่อ Route Traffic:
   - `/` -> Frontend Container
   - `/api/` -> Backend Container (Port 3001)
@@ -202,4 +202,23 @@ curl -X POST http://localhost:3001/api/registrations \
 docker compose up -d --build
 
 # ตรวจสอบสถานะการทำงาน
-docker compose ps
+docker compose ps```
+
+### 8.3 ระบบ CI/CD Pipeline (GitHub Actions)
+- จัดทำ Workflow `.github/workflows/ci.yml` ตรวจสอบอัตโนมัติเมื่อมี Push / Pull Request บน Branch `main`
+- **Jobs:**
+  - `test-and-lint`: รัน ESLint (`npm run lint`) และ Unit Test (`npm test`)
+  - `build-docker`: ทดสอบกระบวนการบิลด์ Container Images (`docker compose build`)
+
+### 8.4 ระบบสำรองข้อมูล (Database Backup)
+- จัดทำ Shell Script `scripts/backup.sh` สำหรับ Dump ข้อมูล PostgreSQL ผ่านคำสั่ง `pg_dump`
+- ตั้งชื่อไฟล์สำรองอัตโนมัติตามรูปแบบ Timestamp (`backup_YYYYMMDD_HHMMSS.sql`)
+- ตั้งค่า `.gitignore` เพื่อยกเว้นการส่งไฟล์สำรองข้อมูลขึ้น Git Repository
+
+### 8.5 การตรวจสอบสถานะและการสำรองข้อมูล
+```bash
+# ตรวจสอบ Health Check ของบริการ
+curl http://localhost/api/health
+
+# สั่งรัน Script สำรองข้อมูล PostgreSQL
+bash scripts/backup.sh```
