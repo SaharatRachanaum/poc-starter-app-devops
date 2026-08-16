@@ -202,7 +202,8 @@ curl -X POST http://localhost:3001/api/registrations \
 docker compose up -d --build
 
 # ตรวจสอบสถานะการทำงาน
-docker compose ps```
+docker compose ps
+```
 
 ### 8.3 ระบบ CI/CD Pipeline (GitHub Actions)
 - จัดทำ Workflow `.github/workflows/ci.yml` ตรวจสอบอัตโนมัติเมื่อมี Push / Pull Request บน Branch `main`
@@ -221,4 +222,5 @@ docker compose ps```
 curl http://localhost/api/health
 
 # สั่งรัน Script สำรองข้อมูล PostgreSQL
-bash scripts/backup.sh```
+bash scripts/backup.sh
+```
