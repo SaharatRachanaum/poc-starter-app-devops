@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # 1. Database Service (PostgreSQL)
+  postgres:
+    image: postgres:14-alpine
+    container_name: psu_postgres
+    environment:
+      POSTGRES_DB: psu_activities
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    volumes:
+      # ใช้ db/init.sql เพื่อสร้าง DB และเพิ่มข้อมูลเริ่มต้น
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d psu_activities"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Backend Service (Node.js API)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: psu_backend
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/psu_activities
+      CORS_ORIGIN: "*"
+      LOG_LEVEL: info
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # 3. Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: psu_frontend
+
+  # 4. Reverse Proxy (Nginx)
+  proxy:
+    image: nginx:alpine
+    container_name: psu_proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  postgres_data:
