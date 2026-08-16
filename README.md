@@ -218,7 +218,7 @@ docker compose ps
 
 ### 8.5 การตรวจสอบสถานะและการสำรองข้อมูล
 ```bash
-# ตรวจสอบ Health Check ของบริการ
+# ตรวจสอบ Health Check ของระบบ
 curl http://localhost/api/health
 
 # สั่งรัน Script สำรองข้อมูล PostgreSQL
